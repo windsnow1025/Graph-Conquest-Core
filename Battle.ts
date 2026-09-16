@@ -24,7 +24,7 @@ class Battle {
   // Config
   public targetLocation: string;
   public graph: Graph;
-  public maxRounds: number;
+  public maxArmyAttacks: number;
 
   // Participants
   public attackerPlayer: Player;
@@ -37,6 +37,7 @@ class Battle {
   public phase: BattlePhase;
   public result: BattleResult;
   public actedArmies: Set<Army>;
+  public remainingAttacks: Map<Army, number>;
 
   constructor(
     targetLocation: string,
@@ -44,12 +45,12 @@ class Battle {
     defenderPlayer: Player,
     attackerArmies: Army[],
     graph: Graph,
-    maxRounds: number,
+    maxArmyAttacks: number,
   ) {
     // Config
     this.targetLocation = targetLocation;
     this.graph = graph;
-    this.maxRounds = maxRounds;
+    this.maxArmyAttacks = maxArmyAttacks;
 
     // Participants
     this.attackerPlayer = attackerPlayer;
@@ -64,6 +65,11 @@ class Battle {
     this.phase = BattlePhase.AttackerTurn;
     this.result = BattleResult.Ongoing;
     this.actedArmies = new Set();
+    this.remainingAttacks = new Map(
+      [...this.attackerArmies, ...this.defenderArmies].map(
+        (army): [Army, number] => [army, maxArmyAttacks],
+      ),
+    );
   }
 
   get currentArmies(): Army[] {
@@ -80,11 +86,15 @@ class Battle {
     return this.currentArmies.some((army) => this.canAct(army));
   }
 
+  getRemainingAttacks(army: Army): number {
+    return this.remainingAttacks.get(army)!;
+  }
+
   canAct(army: Army): boolean {
     if (this.result !== BattleResult.Ongoing) return false;
     if (this.actedArmies.has(army)) return false;
     if (!this.currentArmies.includes(army)) return false;
-    return this.getTargetsInRange(army).length > 0;
+    return this.canStillAttack(army);
   }
 
   getTargetsInRange(army: Army): Army[] {
@@ -130,6 +140,7 @@ class Battle {
     }
 
     this.actedArmies.add(army);
+    this.remainingAttacks.set(army, this.getRemainingAttacks(army) - 1);
     this.cleanupDeadArmies();
     this.checkBattleEnd();
     if (this.result === BattleResult.Ongoing && !this.hasActableArmies) {
@@ -182,6 +193,10 @@ class Battle {
     return true;
   }
 
+  private canStillAttack(army: Army): boolean {
+    return this.getRemainingAttacks(army) > 0 && this.getTargetsInRange(army).length > 0;
+  }
+
   private cleanupDeadArmies(): void {
     this.attackerArmies = this.attackerArmies.filter(
       (army) => army.units.length > 0,
@@ -205,14 +220,16 @@ class Battle {
   private endPhase(): void {
     this.actedArmies.clear();
 
+    const allArmies = [...this.attackerArmies, ...this.defenderArmies];
+    if (!allArmies.some((army) => this.canStillAttack(army))) {
+      this.result = BattleResult.Draw;
+      return;
+    }
+
     if (this.phase === BattlePhase.AttackerTurn) {
       this.phase = BattlePhase.DefenderTurn;
     } else {
       this.round++;
-      if (this.round > this.maxRounds) {
-        this.result = BattleResult.Draw;
-        return;
-      }
       this.phase = BattlePhase.AttackerTurn;
     }
 
@@ -237,6 +254,8 @@ class Battle {
       actedDefenderArmies: this.defenderArmies
         .filter((a) => this.actedArmies.has(a))
         .map((a) => this.defenderPlayer.armies.indexOf(a)),
+      attackerRemainingAttacks: this.attackerArmies.map((a) => this.getRemainingAttacks(a)),
+      defenderRemainingAttacks: this.defenderArmies.map((a) => this.getRemainingAttacks(a)),
     };
   }
 
@@ -244,7 +263,7 @@ class Battle {
     json: BattleSave,
     players: Player[],
     graph: Graph,
-    maxRounds: number,
+    maxArmyAttacks: number,
   ): Battle {
     const attackerPlayer = players.find((p) => p.name === json.attackerPlayer)!;
     const defenderPlayer = players.find((p) => p.name === json.defenderPlayer)!;
@@ -254,7 +273,7 @@ class Battle {
       defenderPlayer,
       json.attackerArmies.map((i) => attackerPlayer.armies[i]),
       graph,
-      maxRounds,
+      maxArmyAttacks,
     );
     battle.defenderArmies = json.defenderArmies.map((i) => defenderPlayer.armies[i]);
     battle.round = json.round;
@@ -263,6 +282,10 @@ class Battle {
     battle.actedArmies = new Set([
       ...json.actedAttackerArmies.map((i) => attackerPlayer.armies[i]),
       ...json.actedDefenderArmies.map((i) => defenderPlayer.armies[i]),
+    ]);
+    battle.remainingAttacks = new Map([
+      ...battle.attackerArmies.map((a, i): [Army, number] => [a, json.attackerRemainingAttacks[i]]),
+      ...battle.defenderArmies.map((a, i): [Army, number] => [a, json.defenderRemainingAttacks[i]]),
     ]);
     return battle;
   }
@@ -279,6 +302,8 @@ export interface BattleSave {
   result: BattleResult;
   actedAttackerArmies: number[];
   actedDefenderArmies: number[];
+  attackerRemainingAttacks: number[];
+  defenderRemainingAttacks: number[];
 }
 
 export default Battle;

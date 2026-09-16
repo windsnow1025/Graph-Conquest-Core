@@ -11,7 +11,7 @@ export interface GameConfig {
   unitStatsMap: UnitStatsMap;
   gameMap: Graph;
   maxTurns: number;
-  maxBattleRounds: number;
+  maxArmyAttacks: number;
   interestRate: number;
   upkeepRate: number;
   players: Player[];

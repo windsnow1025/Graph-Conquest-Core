@@ -66,10 +66,14 @@ class Battle {
     this.result = BattleResult.Ongoing;
     this.actedArmies = new Set();
     this.remainingAttacks = new Map(
-      [...this.attackerArmies, ...this.defenderArmies].map(
+      this.allArmies.map(
         (army): [Army, number] => [army, maxArmyAttacks],
       ),
     );
+  }
+
+  get allArmies(): Army[] {
+    return [...this.attackerArmies, ...this.defenderArmies];
   }
 
   get currentArmies(): Army[] {
@@ -220,8 +224,7 @@ class Battle {
   private endPhase(): void {
     this.actedArmies.clear();
 
-    const allArmies = [...this.attackerArmies, ...this.defenderArmies];
-    if (!allArmies.some((army) => this.canStillAttack(army))) {
+    if (!this.allArmies.some((army) => this.canStillAttack(army))) {
       this.result = BattleResult.Draw;
       return;
     }

@@ -120,6 +120,16 @@ class GameSystem {
     return locations;
   }
 
+  get attackableLocations(): Set<string> {
+    const locations = new Set<string>();
+    for (const enemyLocation of this.enemyLocations) {
+      if (this.getArmiesInRange(enemyLocation).length > 0) {
+        locations.add(enemyLocation);
+      }
+    }
+    return locations;
+  }
+
   maxArmiesPerTypeAtNode(location: string): number {
     return this.gameMap.getNeighborCount(location) + 1;
   }
@@ -174,16 +184,6 @@ class GameSystem {
     if (this.currentBattle) return false;
 
     return this.currentPlayer.disbandUnits(army, count);
-  }
-
-  get attackableLocations(): Set<string> {
-    const locations = new Set<string>();
-    for (const enemyLocation of this.enemyLocations) {
-      if (this.getArmiesInRange(enemyLocation).length > 0) {
-        locations.add(enemyLocation);
-      }
-    }
-    return locations;
   }
 
   hasAttackTargets(army: Army): boolean {

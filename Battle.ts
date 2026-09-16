@@ -91,6 +91,10 @@ class Battle {
     return this.unactedArmies.some((army) => this.canStillAttack(army));
   }
 
+  getRemainingAttacks(army: Army): number {
+    return this.remainingAttacks.get(army)!;
+  }
+
   canAct(army: Army): boolean {
     if (this.result !== BattleResult.Ongoing) return false;
     if (this.actedArmies.has(army)) return false;
@@ -123,10 +127,6 @@ class Battle {
 
   getUnitsNeeded(attackerArmy: Army, targetArmy: Army): number {
     return calculateUnitsNeeded(attackerArmy, targetArmy);
-  }
-
-  getRemainingAttacks(army: Army): number {
-    return this.remainingAttacks.get(army)!;
   }
 
   allocateAttack(army: Army, allocations: AttackAllocation[]): boolean {
@@ -206,6 +206,26 @@ class Battle {
     return this.getRemainingAttacks(army) > 0 && this.getTargetsInRange(army).length > 0;
   }
 
+  private cleanupDeadArmies(): void {
+    this.attackerArmies = this.attackerArmies.filter(
+      (army) => army.units.length > 0,
+    );
+    this.defenderArmies = this.defenderArmies.filter(
+      (army) => army.units.length > 0,
+    );
+  }
+
+  private checkBattleEnd(): void {
+    const attackersAlive = this.attackerArmies.length > 0;
+    const defendersAlive = this.defenderArmies.length > 0;
+
+    if (!defendersAlive) {
+      this.result = BattleResult.AttackerWins;
+    } else if (!attackersAlive) {
+      this.result = BattleResult.DefenderWins;
+    }
+  }
+
   private endPhase(): boolean {
     if (this.result !== BattleResult.Ongoing) return false;
     if (this.hasActableArmies) return false;
@@ -229,26 +249,6 @@ class Battle {
       this.endPhase();
     }
     return true;
-  }
-
-  private checkBattleEnd(): void {
-    const attackersAlive = this.attackerArmies.length > 0;
-    const defendersAlive = this.defenderArmies.length > 0;
-
-    if (!defendersAlive) {
-      this.result = BattleResult.AttackerWins;
-    } else if (!attackersAlive) {
-      this.result = BattleResult.DefenderWins;
-    }
-  }
-
-  private cleanupDeadArmies(): void {
-    this.attackerArmies = this.attackerArmies.filter(
-      (army) => army.units.length > 0,
-    );
-    this.defenderArmies = this.defenderArmies.filter(
-      (army) => army.units.length > 0,
-    );
   }
 
   toJSON(): BattleSave {

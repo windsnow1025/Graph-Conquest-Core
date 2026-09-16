@@ -10,7 +10,7 @@ class GameSystem {
   public unitStatsMap: UnitStatsMap;
   public gameMap: Graph;
   public maxTurns: number;
-  public maxBattleRounds: number;
+  public maxArmyAttacks: number;
   public interestRate: number;
   public upkeepRate: number;
 
@@ -29,7 +29,7 @@ class GameSystem {
     this.gameMap = Graph.fromJSON(config.gameMap.toJSON());
     this.players = config.players.map(p => new Player(p.money, p.name, p.homeLocation));
     this.maxTurns = config.maxTurns;
-    this.maxBattleRounds = config.maxBattleRounds;
+    this.maxArmyAttacks = config.maxArmyAttacks;
     this.interestRate = config.interestRate;
     this.upkeepRate = config.upkeepRate;
 
@@ -231,7 +231,7 @@ class GameSystem {
       defenderPlayer,
       selectedArmies,
       this.gameMap,
-      this.maxBattleRounds,
+      this.maxArmyAttacks,
     );
     return this.currentBattle;
   }
@@ -299,7 +299,7 @@ class GameSystem {
       unitStatsMap: structuredClone(this.unitStatsMap),
       gameMap: this.gameMap.toJSON(),
       maxTurns: this.maxTurns,
-      maxBattleRounds: this.maxBattleRounds,
+      maxArmyAttacks: this.maxArmyAttacks,
       interestRate: this.interestRate,
       upkeepRate: this.upkeepRate,
 
@@ -325,7 +325,7 @@ class GameSystem {
     game.unitStatsMap = unitStatsMap;
     game.gameMap = Graph.fromJSON(save.gameMap);
     game.maxTurns = save.maxTurns;
-    game.maxBattleRounds = save.maxBattleRounds;
+    game.maxArmyAttacks = save.maxArmyAttacks;
     game.interestRate = save.interestRate;
     game.upkeepRate = save.upkeepRate;
 
@@ -350,7 +350,7 @@ class GameSystem {
     game.currentPlayerIndex = save.currentPlayerIndex;
     game.turnCount = save.turnCount;
     game.currentBattle = save.currentBattle
-      ? Battle.fromJSON(save.currentBattle, game.allPlayers, game.gameMap, game.maxBattleRounds)
+      ? Battle.fromJSON(save.currentBattle, game.allPlayers, game.gameMap, game.maxArmyAttacks)
       : null;
 
     return game;
@@ -362,7 +362,7 @@ export interface GameSave {
   unitStatsMap: UnitStatsMap;
   gameMap: GraphJSON;
   maxTurns: number;
-  maxBattleRounds: number;
+  maxArmyAttacks: number;
   interestRate: number;
   upkeepRate: number;
 

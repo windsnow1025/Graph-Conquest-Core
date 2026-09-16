@@ -8,7 +8,7 @@ const Config: GameConfig = {
   unitStatsMap: DefaultUnitStatsMap,
   gameMap: DefaultGameMap,
   maxTurns: 100,
-  maxBattleRounds: 10,
+  maxArmyAttacks: 3,
   interestRate: 0.05,
   upkeepRate: 0.1,
   players: DefaultPlayers,

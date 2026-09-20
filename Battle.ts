@@ -90,6 +90,10 @@ class Battle {
     return this.currentArmies.some((army) => this.canAct(army));
   }
 
+  get passiveDefender(): boolean {
+    return this.defenderPlayer.homeLocation === "" || this.defenderPlayer.defeated;
+  }
+
   getRemainingAttacks(army: Army): number {
     return this.remainingAttacks.get(army)!;
   }
@@ -162,10 +166,31 @@ class Battle {
     return true;
   }
 
-  executeNeutralDefenderTurn(): boolean {
-    if (this.result !== BattleResult.Ongoing) return false;
-    if (this.phase !== BattlePhase.DefenderTurn) return false;
+  private canStillAttack(army: Army): boolean {
+    return this.getRemainingAttacks(army) > 0 && this.getTargetsInRange(army).length > 0;
+  }
 
+  private cleanupDeadArmies(): void {
+    this.attackerArmies = this.attackerArmies.filter(
+      (army) => army.units.length > 0,
+    );
+    this.defenderArmies = this.defenderArmies.filter(
+      (army) => army.units.length > 0,
+    );
+  }
+
+  private checkBattleEnd(): void {
+    const attackersAlive = this.attackerArmies.length > 0;
+    const defendersAlive = this.defenderArmies.length > 0;
+
+    if (!defendersAlive) {
+      this.result = BattleResult.AttackerWins;
+    } else if (!attackersAlive) {
+      this.result = BattleResult.DefenderWins;
+    }
+  }
+
+  private executePassiveDefenderTurn(): void {
     function findHighestHpArmy(armies: Army[]): Army {
       let target = armies[0];
       let maxHp = 0;
@@ -192,32 +217,7 @@ class Battle {
       const target = findHighestHpArmy(targets);
 
       this.allocateAttack(army, new Map([[target, army.units.length]]));
-      if (this.result !== BattleResult.Ongoing) return true;
-    }
-    return true;
-  }
-
-  private canStillAttack(army: Army): boolean {
-    return this.getRemainingAttacks(army) > 0 && this.getTargetsInRange(army).length > 0;
-  }
-
-  private cleanupDeadArmies(): void {
-    this.attackerArmies = this.attackerArmies.filter(
-      (army) => army.units.length > 0,
-    );
-    this.defenderArmies = this.defenderArmies.filter(
-      (army) => army.units.length > 0,
-    );
-  }
-
-  private checkBattleEnd(): void {
-    const attackersAlive = this.attackerArmies.length > 0;
-    const defendersAlive = this.defenderArmies.length > 0;
-
-    if (!defendersAlive) {
-      this.result = BattleResult.AttackerWins;
-    } else if (!attackersAlive) {
-      this.result = BattleResult.DefenderWins;
+      if (this.result !== BattleResult.Ongoing) return;
     }
   }
 
@@ -238,6 +238,8 @@ class Battle {
 
     if (!this.hasActableArmies) {
       this.endPhase();
+    } else if (this.phase === BattlePhase.DefenderTurn && this.passiveDefender) {
+      this.executePassiveDefenderTurn();
     }
   }
 

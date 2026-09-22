@@ -1,6 +1,7 @@
 import Army from "./Army";
 import type {ArmyJSON} from "./Army";
 import type Graph from "./Graph";
+import type Unit from "./Unit";
 import type {UnitStatsMap, UnitType} from "./Unit";
 import {createUnits} from "./Unit";
 
@@ -31,55 +32,41 @@ class Player {
     return Math.floor(total);
   }
 
+  public getArmy(location: string, unitType: UnitType): Army | undefined {
+    return this.armies.find(army => army.location === location && army.unitType === unitType);
+  }
+
   public buyUnitsToLocation(unitType: UnitType, location: string, count: number): Army | null {
     if (!this.canBuy(unitType, count)) return null;
 
     const stats = this.unitStatsMap[unitType];
-    const army = new Army(createUnits(stats, count), unitType, stats, location);
-    this.armies.push(army);
+    const army = this.placeUnits(createUnits(stats, count), unitType, location);
     this.money -= army.unitStats.cost * count;
     return army;
   }
 
-  public moveArmy(army: Army, newLocation: string, graph: Graph, enemyLocations: Set<string>): boolean {
-    if (!army.canMove(newLocation, graph, enemyLocations)) return false;
+  public moveUnits(army: Army, newLocation: string, units: Unit[], graph: Graph, enemyLocations: Set<string>): boolean {
+    if (!this.armies.includes(army) || units.length === 0) return false;
+    const candidates = new Set(army.getMoveCandidates(newLocation, graph, enemyLocations));
+    if (!units.every(unit => candidates.has(unit))) return false;
 
     const distance = graph.getDistance(army.location, newLocation, enemyLocations)!;
-    army.remainingMoves -= distance;
-    army.location = newLocation;
+    const moving = new Set(units);
+    for (const unit of moving) {
+      unit.remainingMoves -= distance;
+    }
+    army.units = army.units.filter(unit => !moving.has(unit));
+    this.placeUnits([...moving], army.unitType, newLocation);
+    this.removeEmptyArmies();
     return true;
   }
 
-  public splitArmy(army: Army, count: number): Army | null {
-    if (!this.armies.includes(army)) return null;
-    if (count <= 0 || count >= army.units.length) return null;
+  public disbandUnits(army: Army, units: Unit[]): boolean {
+    if (!this.armies.includes(army) || units.length === 0) return false;
+    if (!units.every(unit => army.units.includes(unit))) return false;
 
-    const stats = this.unitStatsMap[army.unitType];
-    const newArmy = new Army(army.units.splice(army.units.length - count, count), army.unitType, stats, army.location);
-    newArmy.remainingMoves = army.remainingMoves;
-    newArmy.canAttack = army.canAttack;
-    this.armies.push(newArmy);
-    return newArmy;
-  }
-
-  public mergeArmies(target: Army, source: Army): Army | null {
-    if (target === source) return null;
-    if (!this.armies.includes(target) || !this.armies.includes(source)) return null;
-    if (target.unitType !== source.unitType) return null;
-    if (target.location !== source.location) return null;
-
-    for (const u of source.units) target.units.push(u);
-    target.remainingMoves = Math.min(target.remainingMoves, source.remainingMoves);
-    target.canAttack = target.canAttack && source.canAttack;
-    this.armies = this.armies.filter(a => a !== source);
-    return target;
-  }
-
-  public disbandUnits(army: Army, count: number): boolean {
-    if (!this.armies.includes(army)) return false;
-    if (count <= 0 || count > army.units.length) return false;
-
-    army.units.splice(army.units.length - count, count);
+    const disbanding = new Set(units);
+    army.units = army.units.filter(unit => !disbanding.has(unit));
     this.removeEmptyArmies();
     return true;
   }
@@ -92,6 +79,17 @@ class Player {
 
   public removeEmptyArmies() {
     this.armies = this.armies.filter(army => army.units.length > 0);
+  }
+
+  private placeUnits(units: Unit[], unitType: UnitType, location: string): Army {
+    const existing = this.getArmy(location, unitType);
+    if (existing) {
+      existing.units.push(...units);
+      return existing;
+    }
+    const army = new Army(units, unitType, this.unitStatsMap[unitType], location);
+    this.armies.push(army);
+    return army;
   }
 
   toJSON(): PlayerJSON {

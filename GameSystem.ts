@@ -1,6 +1,7 @@
 import Player, {type PlayerJSON} from "./Player";
 import Army from "./Army";
 import Battle, {BattleResult, type BattleSave} from "./Battle";
+import type Unit from "./Unit";
 import type {UnitStatsMap, UnitType} from "./Unit";
 import {createUnits} from "./Unit";
 import Graph, {type GraphJSON} from "./Graph.ts";
@@ -129,33 +130,20 @@ class GameSystem {
     return locations;
   }
 
-  maxArmiesPerTypeAtNode(location: string): number {
-    return this.gameMap.getNeighborCount(location)! + 1;
-  }
-
-  countArmiesOfTypeAtLocation(player: Player, unitType: UnitType, location: string): number {
-    let n = 0;
-    for (const a of player.armies) {
-      if (a.location === location && a.unitType === unitType) n++;
-    }
-    return n;
-  }
-
   recruitPlayerArmy(unitType: UnitType, location: string, count: number): Army | null {
     if (this.gameOver || this.currentPlayer.defeated) return null;
     if (this.currentBattle) return null;
     if (!this.gameMap.getNodeData(location)!.canRecruit) return null;
     if (this.nodeOwnership.get(location) !== this.currentPlayer) return null;
-    if (this.countArmiesOfTypeAtLocation(this.currentPlayer, unitType, location) >= this.maxArmiesPerTypeAtNode(location)) return null;
 
     return this.currentPlayer.buyUnitsToLocation(unitType, location, count);
   }
 
-  movePlayerArmy(army: Army, newLocation: string): boolean {
+  movePlayerUnits(army: Army, newLocation: string, units: Unit[]): boolean {
     if (this.gameOver || this.currentPlayer.defeated) return false;
     if (this.currentBattle) return false;
 
-    const result = this.currentPlayer.moveArmy(army, newLocation, this.gameMap, this.enemyLocations);
+    const result = this.currentPlayer.moveUnits(army, newLocation, units, this.gameMap, this.enemyLocations);
     if (result) {
       this.nodeOwnership.set(newLocation, this.currentPlayer);
       this.checkDefeat();
@@ -163,26 +151,11 @@ class GameSystem {
     return result;
   }
 
-  splitPlayerArmy(army: Army, count: number): Army | null {
-    if (this.gameOver || this.currentPlayer.defeated) return null;
-    if (this.currentBattle) return null;
-    if (this.countArmiesOfTypeAtLocation(this.currentPlayer, army.unitType, army.location) >= this.maxArmiesPerTypeAtNode(army.location)) return null;
-
-    return this.currentPlayer.splitArmy(army, count);
-  }
-
-  mergePlayerArmies(target: Army, source: Army): Army | null {
-    if (this.gameOver || this.currentPlayer.defeated) return null;
-    if (this.currentBattle) return null;
-
-    return this.currentPlayer.mergeArmies(target, source);
-  }
-
-  disbandPlayerArmy(army: Army, count: number): boolean {
+  disbandPlayerUnits(army: Army, units: Unit[]): boolean {
     if (this.gameOver || this.currentPlayer.defeated) return false;
     if (this.currentBattle) return false;
 
-    return this.currentPlayer.disbandUnits(army, count);
+    return this.currentPlayer.disbandUnits(army, units);
   }
 
   hasAttackTargets(army: Army): boolean {
@@ -195,13 +168,13 @@ class GameSystem {
 
   getArmiesInRange(targetLocation: string): Army[] {
     return this.currentPlayer.armies.filter((army) => {
-      if (!army.canAttack) return false;
+      if (army.attackCandidates.length === 0) return false;
       const distance = this.gameMap.getDistance(army.location, targetLocation)!;
       return army.unitStats.range >= distance;
     });
   }
 
-  startBattle(targetLocation: string, selectedArmies: Army[]): Battle | null {
+  startBattle(targetLocation: string, selections: Map<Army, Unit[]>): Battle | null {
     if (this.gameOver || this.currentPlayer.defeated) return null;
     if (this.currentBattle) return null;
 
@@ -212,23 +185,33 @@ class GameSystem {
     );
     if (!defenderPlayer) return null;
 
-    // Validate all selected armies are in range
-    if (selectedArmies.length === 0) return null;
-    const allInRange = selectedArmies.every((army) => {
-      const distance = this.gameMap.getDistance(army.location, targetLocation)!;
-      return army.unitStats.range >= distance;
-    });
-    if (!allInRange) return null;
+    // Validate the selections
+    if (selections.size === 0) return null;
+    const armiesInRange = this.getArmiesInRange(targetLocation);
+    for (const [army, units] of selections) {
+      if (!armiesInRange.includes(army) || units.length === 0) return null;
+      const candidates = new Set(army.attackCandidates);
+      if (!units.every((unit) => candidates.has(unit))) return null;
+    }
 
-    for (const army of selectedArmies) {
-      army.canAttack = false;
+    for (const units of selections.values()) {
+      for (const unit of units) {
+        unit.canAttack = false;
+        unit.inBattle = true;
+      }
+    }
+    for (const army of defenderPlayer.armies) {
+      if (army.location !== targetLocation) continue;
+      for (const unit of army.units) {
+        unit.inBattle = true;
+      }
     }
 
     this.currentBattle = new Battle(
       targetLocation,
       this.currentPlayer,
       defenderPlayer,
-      selectedArmies,
+      [...selections.keys()],
       this.gameMap,
       this.maxArmyAttacks,
     );
@@ -240,8 +223,14 @@ class GameSystem {
     if (this.currentBattle.result === BattleResult.Ongoing) return false;
 
     const battle = this.currentBattle;
-    battle.attackerPlayer.removeEmptyArmies();
-    battle.defenderPlayer.removeEmptyArmies();
+    for (const player of [battle.attackerPlayer, battle.defenderPlayer]) {
+      for (const army of player.armies) {
+        for (const unit of army.battleUnits) {
+          unit.inBattle = false;
+        }
+      }
+      player.removeEmptyArmies();
+    }
     this.currentBattle = null;
 
     return true;

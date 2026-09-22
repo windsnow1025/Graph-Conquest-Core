@@ -4,9 +4,10 @@ import type Army from "./Army";
 export function armyAttackArmy(
   attackerArmy: Army, targetArmy: Army, unitCount: number
 ): void {
+  const attackerUnits = attackerArmy.battleUnits;
   for (let i = 0; i < unitCount; i++) {
-    if (targetArmy.units.length === 0) break;
-    const attackerUnit = attackerArmy.units[i];
+    if (targetArmy.battleUnits.length === 0) break;
+    const attackerUnit = attackerUnits[i];
     const defenderUnit = findWeakestUnit(targetArmy);
     unitAttack(attackerUnit, defenderUnit);
     targetArmy.removeDeadUnits();
@@ -18,18 +19,19 @@ export function calculateUnitsNeeded(
 ): number {
   const damage = Math.max(1, attackerArmy.unitStats.attack - targetArmy.unitStats.defend);
   let total = 0;
-  for (const unit of targetArmy.units) {
+  for (const unit of targetArmy.battleUnits) {
     total += Math.ceil(unit.currentHealth / damage);
   }
   return total;
 }
 
 export function findWeakestUnit(army: Army): Unit {
-  return army.units.reduce((weakest, unit) => {
+  const battleUnits = army.battleUnits;
+  return battleUnits.reduce((weakest, unit) => {
     const currentHealthRatio = unit.currentHealth / unit.health;
     const weakestHealthRatio = weakest.currentHealth / weakest.health;
     return currentHealthRatio < weakestHealthRatio ? unit : weakest;
-  }, army.units[0]);
+  }, battleUnits[0]);
 }
 
 function unitAttack(attackerUnit: Unit, defenderUnit: Unit): void {

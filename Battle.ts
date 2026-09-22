@@ -141,7 +141,7 @@ class Battle {
       if (unitCount <= 0 || !targetsInRange.includes(target)) return false;
       totalAllocated += unitCount;
     }
-    if (totalAllocated > army.units.length) return false;
+    if (totalAllocated > army.battleUnits.length) return false;
 
     for (const [target, unitCount] of allocations) {
       armyAttackArmy(army, target, unitCount);
@@ -172,10 +172,10 @@ class Battle {
 
   private cleanupDeadArmies(): void {
     this.attackerArmies = this.attackerArmies.filter(
-      (army) => army.units.length > 0,
+      (army) => army.battleUnits.length > 0,
     );
     this.defenderArmies = this.defenderArmies.filter(
-      (army) => army.units.length > 0,
+      (army) => army.battleUnits.length > 0,
     );
   }
 
@@ -194,13 +194,13 @@ class Battle {
     function findHighestHpArmy(armies: Army[]): Army {
       let target = armies[0];
       let maxHp = 0;
-      for (const unit of target.units) {
+      for (const unit of target.battleUnits) {
         maxHp += unit.currentHealth;
       }
 
       for (const candidate of armies) {
         let candidateHp = 0;
-        for (const unit of candidate.units) {
+        for (const unit of candidate.battleUnits) {
           candidateHp += unit.currentHealth;
         }
         if (candidateHp > maxHp) {
@@ -216,7 +216,7 @@ class Battle {
       if (targets.length === 0) continue;
       const target = findHighestHpArmy(targets);
 
-      this.allocateAttack(army, new Map([[target, army.units.length]]));
+      this.allocateAttack(army, new Map([[target, army.battleUnits.length]]));
       if (this.result !== BattleResult.Ongoing) return;
     }
   }

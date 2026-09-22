@@ -19,6 +19,9 @@ class Unit {
   public readonly speed: number;
   public readonly cost: number;
   public currentHealth: number;
+  public remainingMoves: number;
+  public canAttack: boolean;
+  public inBattle: boolean;
 
   constructor(stats: UnitStats) {
     this.attack = stats.attack;
@@ -28,15 +31,31 @@ class Unit {
     this.speed = stats.speed;
     this.cost = stats.cost;
     this.currentHealth = stats.health;
+    this.remainingMoves = 0;
+    this.canAttack = false;
+    this.inBattle = false;
+  }
+
+  public resetTurn() {
+    this.remainingMoves = this.speed;
+    this.canAttack = true;
   }
 
   toJSON(): UnitJSON {
-    return { currentHealth: this.currentHealth };
+    return {
+      currentHealth: this.currentHealth,
+      remainingMoves: this.remainingMoves,
+      canAttack: this.canAttack,
+      inBattle: this.inBattle,
+    };
   }
 
   static fromJSON(json: UnitJSON, stats: UnitStats): Unit {
     const unit = new Unit(stats);
     unit.currentHealth = json.currentHealth;
+    unit.remainingMoves = json.remainingMoves;
+    unit.canAttack = json.canAttack;
+    unit.inBattle = json.inBattle;
     return unit;
   }
 }
@@ -47,6 +66,9 @@ export function createUnits(stats: UnitStats, count: number): Unit[] {
 
 export interface UnitJSON {
   currentHealth: number;
+  remainingMoves: number;
+  canAttack: boolean;
+  inBattle: boolean;
 }
 
 export default Unit;

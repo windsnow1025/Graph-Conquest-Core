@@ -236,6 +236,14 @@ class GameSystem {
     return true;
   }
 
+  getUpkeep(player: Player): number {
+    let total = 0;
+    for (const army of player.armies) {
+      total += army.units.length * army.unitStats.cost * this.upkeepRate;
+    }
+    return Math.floor(total);
+  }
+
   startTurn() {
     // Interest
     this.currentPlayer.money = Math.floor(this.currentPlayer.money * (1 + this.interestRate));
@@ -244,7 +252,7 @@ class GameSystem {
     this.currentPlayer.money += this.nodeIncome;
 
     // Upkeep
-    this.currentPlayer.money -= this.currentPlayer.getUpkeep(this.upkeepRate);
+    this.currentPlayer.money -= this.getUpkeep(this.currentPlayer);
 
     this.currentPlayer.resetAllArmyTurns();
   }

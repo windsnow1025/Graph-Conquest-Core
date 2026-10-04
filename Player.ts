@@ -24,14 +24,6 @@ class Player {
     return this.money >= this.unitStatsMap[unitType].cost * count;
   }
 
-  public getUpkeep(upkeepRate: number): number {
-    let total = 0;
-    for (const army of this.armies) {
-      total += army.units.length * army.unitStats.cost * upkeepRate;
-    }
-    return Math.floor(total);
-  }
-
   public getArmy(location: string, unitType: UnitType): Army | undefined {
     return this.armies.find(army => army.location === location && army.unitType === unitType);
   }

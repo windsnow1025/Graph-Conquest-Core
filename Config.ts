@@ -1,19 +1,24 @@
 import {type UnitStats, type UnitStatsMap, type UnitType} from "./Unit.ts";
-import type Graph from "./Graph.ts";
-import type Player from "./Player.ts";
+import type {GraphJSON} from "./Graph.ts";
 
 export interface NeutralGarrison {
   unitType: UnitType;
   unitStats: UnitStats;
 }
 
+export interface PlayerConfig {
+  money: number;
+  name: string;
+  homeLocation: string;
+}
+
 export interface GameConfig {
   unitStatsMap: UnitStatsMap;
-  gameMap: Graph;
+  gameMap: GraphJSON;
   maxTurns: number;
   maxArmyAttacks: number;
   interestRate: number;
   upkeepRate: number;
-  players: Player[];
+  players: PlayerConfig[];
   neutralGarrison: NeutralGarrison;
 }

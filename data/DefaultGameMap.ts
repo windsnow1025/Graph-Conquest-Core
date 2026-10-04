@@ -1,40 +1,44 @@
-import Graph from "../Graph";
+import type {GraphJSON} from "../Graph";
 
-const DefaultGameMap = new Graph();
-
-DefaultGameMap.addNode("Blue Home", {canRecruit: true, income: 10});
-DefaultGameMap.addNode("Blue to Center", {canRecruit: false, income: 2});
-DefaultGameMap.addNode("B to G", {canRecruit: false, income: 2});
-DefaultGameMap.addNode("B to R", {canRecruit: false, income: 2});
-DefaultGameMap.addNode("Red Home", {canRecruit: true, income: 10});
-DefaultGameMap.addNode("Red to Center", {canRecruit: false, income: 2});
-DefaultGameMap.addNode("R to B", {canRecruit: false, income: 2});
-DefaultGameMap.addNode("R to G", {canRecruit: false, income: 2});
-DefaultGameMap.addNode("Green Home", {canRecruit: true, income: 10});
-DefaultGameMap.addNode("Green to Center", {canRecruit: false, income: 2});
-DefaultGameMap.addNode("G to R", {canRecruit: false, income: 2});
-DefaultGameMap.addNode("G to B", {canRecruit: false, income: 2});
-DefaultGameMap.addNode("Gate RB", {canRecruit: false, income: 4});
-DefaultGameMap.addNode("Gate GB", {canRecruit: false, income: 4});
-DefaultGameMap.addNode("Gate RG", {canRecruit: false, income: 4});
-DefaultGameMap.addNode("Center", {canRecruit: true, income: 8});
-DefaultGameMap.addEdge("Blue Home", "Blue to Center");
-DefaultGameMap.addEdge("Red Home", "Red to Center");
-DefaultGameMap.addEdge("Green Home", "Green to Center");
-DefaultGameMap.addEdge("Blue to Center", "Center");
-DefaultGameMap.addEdge("Red to Center", "Center");
-DefaultGameMap.addEdge("Green to Center", "Center");
-DefaultGameMap.addEdge("Blue Home", "B to R");
-DefaultGameMap.addEdge("B to R", "Gate RB");
-DefaultGameMap.addEdge("Blue Home", "B to G");
-DefaultGameMap.addEdge("B to G", "Gate GB");
-DefaultGameMap.addEdge("Red Home", "R to G");
-DefaultGameMap.addEdge("R to G", "Gate RG");
-DefaultGameMap.addEdge("Red Home", "R to B");
-DefaultGameMap.addEdge("R to B", "Gate RB");
-DefaultGameMap.addEdge("Green Home", "G to B");
-DefaultGameMap.addEdge("G to B", "Gate GB");
-DefaultGameMap.addEdge("Green Home", "G to R");
-DefaultGameMap.addEdge("G to R", "Gate RG");
+const DefaultGameMap: GraphJSON = {
+  nodes: [
+    {name: "Blue Home", data: {canRecruit: true, income: 10}},
+    {name: "Blue to Center", data: {canRecruit: false, income: 2}},
+    {name: "B to G", data: {canRecruit: false, income: 2}},
+    {name: "B to R", data: {canRecruit: false, income: 2}},
+    {name: "Red Home", data: {canRecruit: true, income: 10}},
+    {name: "Red to Center", data: {canRecruit: false, income: 2}},
+    {name: "R to B", data: {canRecruit: false, income: 2}},
+    {name: "R to G", data: {canRecruit: false, income: 2}},
+    {name: "Green Home", data: {canRecruit: true, income: 10}},
+    {name: "Green to Center", data: {canRecruit: false, income: 2}},
+    {name: "G to R", data: {canRecruit: false, income: 2}},
+    {name: "G to B", data: {canRecruit: false, income: 2}},
+    {name: "Gate RB", data: {canRecruit: false, income: 4}},
+    {name: "Gate GB", data: {canRecruit: false, income: 4}},
+    {name: "Gate RG", data: {canRecruit: false, income: 4}},
+    {name: "Center", data: {canRecruit: true, income: 8}},
+  ],
+  edges: [
+    ["Blue Home", "Blue to Center"],
+    ["Blue Home", "B to R"],
+    ["Blue Home", "B to G"],
+    ["Blue to Center", "Center"],
+    ["B to G", "Gate GB"],
+    ["B to R", "Gate RB"],
+    ["Red Home", "Red to Center"],
+    ["Red Home", "R to G"],
+    ["Red Home", "R to B"],
+    ["Red to Center", "Center"],
+    ["R to B", "Gate RB"],
+    ["R to G", "Gate RG"],
+    ["Green Home", "Green to Center"],
+    ["Green Home", "G to B"],
+    ["Green Home", "G to R"],
+    ["Green to Center", "Center"],
+    ["G to R", "Gate RG"],
+    ["G to B", "Gate GB"],
+  ],
+};
 
 export default DefaultGameMap;

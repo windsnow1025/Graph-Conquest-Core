@@ -28,7 +28,7 @@ class GameSystem {
 
   constructor(config: GameConfig) {
     this.unitStatsMap = structuredClone(config.unitStatsMap);
-    this.gameMap = Graph.fromJSON(config.gameMap.toJSON());
+    this.gameMap = Graph.fromJSON(config.gameMap);
     this.players = config.players.map(p => new Player(p.money, p.name, p.homeLocation));
     this.maxTurns = config.maxTurns;
     this.maxArmyAttacks = config.maxArmyAttacks;

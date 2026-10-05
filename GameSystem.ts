@@ -1,13 +1,13 @@
-import Player, {type PlayerJSON} from "./Player";
+import Player, {type PlayerData, type PlayerJSON} from "./Player";
 import Army from "./Army";
-import Battle, {BattleResult, type BattleSave} from "./Battle";
+import Battle, {BattleResult, type BattleData, type BattleSave} from "./Battle";
 import type Unit from "./Unit";
 import type {UnitStatsMap, UnitType} from "./Unit";
 import {createUnits} from "./Unit";
-import Graph, {type GraphJSON} from "./Graph.ts";
+import Graph, {type GraphData, type GraphJSON} from "./Graph.ts";
 import type {GameConfig} from "./Config.ts";
 
-class GameSystem {
+class GameSystem implements GameData {
   // Config
   public unitStatsMap: UnitStatsMap;
   public gameMap: Graph;
@@ -351,6 +351,26 @@ class GameSystem {
 
     return game;
   }
+}
+
+export interface GameData {
+  // Config
+  unitStatsMap: UnitStatsMap;
+  gameMap: GraphData;
+  maxTurns: number;
+  maxArmyAttacks: number;
+  interestRate: number;
+  upkeepRate: number;
+
+  // Participants
+  players: PlayerData[];
+  neutralPlayer: PlayerData;
+
+  // State
+  nodeOwnership: Map<string, PlayerData | null>;
+  currentPlayerIndex: number;
+  turnCount: number;
+  currentBattle: BattleData | null;
 }
 
 export interface GameSave {

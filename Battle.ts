@@ -1,6 +1,9 @@
 import type Army from "./Army";
+import type {ArmyData} from "./Army";
 import type Player from "./Player";
+import type {PlayerData} from "./Player";
 import type Graph from "./Graph";
+import type {GraphData} from "./Graph";
 import { armyAttackArmy, calculateUnitsNeeded } from "./Combat";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -20,7 +23,7 @@ export enum BattleResult {
   Draw = "draw",
 }
 
-class Battle {
+class Battle implements BattleData {
   // Config
   public targetLocation: string;
   public graph: Graph;
@@ -294,6 +297,26 @@ class Battle {
     ]);
     return battle;
   }
+}
+
+export interface BattleData {
+  // Config
+  targetLocation: string;
+  graph: GraphData;
+  maxArmyAttacks: number;
+
+  // Participants
+  attackerPlayer: PlayerData;
+  defenderPlayer: PlayerData;
+  attackerArmies: ArmyData[];
+  defenderArmies: ArmyData[];
+
+  // State
+  round: number;
+  phase: BattlePhase;
+  result: BattleResult;
+  actedArmies: Set<ArmyData>;
+  remainingAttacks: Map<ArmyData, number>;
 }
 
 export interface BattleSave {

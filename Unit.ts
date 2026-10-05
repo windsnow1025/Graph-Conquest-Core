@@ -11,7 +11,7 @@ export type UnitStatsMap = Record<string, UnitStats>;
 
 export type UnitType = keyof UnitStatsMap;
 
-class Unit {
+class Unit implements UnitData {
   public readonly attack: number;
   public readonly defend: number;
   public readonly health: number;
@@ -62,6 +62,13 @@ class Unit {
 
 export function createUnits(stats: UnitStats, count: number): Unit[] {
   return Array.from({length: count}, () => new Unit(stats));
+}
+
+export interface UnitData extends UnitStats {
+  currentHealth: number;
+  remainingMoves: number;
+  canAttack: boolean;
+  inBattle: boolean;
 }
 
 export interface UnitJSON {

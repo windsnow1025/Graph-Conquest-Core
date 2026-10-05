@@ -3,7 +3,7 @@ export interface NodeData {
   income: number;
 }
 
-class Graph {
+class Graph implements GraphData {
   nodes: Map<string, { connections: Set<string>, data: NodeData }>;
 
   constructor() {
@@ -87,6 +87,10 @@ class Graph {
     }
     return graph;
   }
+}
+
+export interface GraphData {
+  nodes: Map<string, { connections: Set<string>, data: NodeData }>;
 }
 
 export interface GraphNodeJSON {

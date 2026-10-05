@@ -1,8 +1,8 @@
-import type {UnitStats, UnitType, UnitJSON} from "./Unit";
+import type {UnitStats, UnitType, UnitData, UnitJSON} from "./Unit";
 import Unit from "./Unit";
 import type Graph from "./Graph";
 
-class Army {
+class Army implements ArmyData {
   public units: Unit[];
   public unitType: UnitType;
   public unitStats: UnitStats;
@@ -58,6 +58,13 @@ class Army {
     const stats = unitStatsMap[json.unitType];
     return new Army(json.units.map(unitJSON => Unit.fromJSON(unitJSON, stats)), json.unitType, stats, json.location);
   }
+}
+
+export interface ArmyData {
+  units: UnitData[];
+  unitType: UnitType;
+  unitStats: UnitStats;
+  location: string;
 }
 
 export interface ArmyJSON {

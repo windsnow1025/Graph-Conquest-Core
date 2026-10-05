@@ -1,11 +1,11 @@
 import Army from "./Army";
-import type {ArmyJSON} from "./Army";
+import type {ArmyData, ArmyJSON} from "./Army";
 import type Graph from "./Graph";
 import type Unit from "./Unit";
 import type {UnitStatsMap, UnitType} from "./Unit";
 import {createUnits} from "./Unit";
 
-class Player {
+class Player implements PlayerData {
   public money: number;
   public name: string;
   public homeLocation: string;
@@ -101,6 +101,15 @@ class Player {
     player.defeated = json.defeated;
     return player;
   }
+}
+
+export interface PlayerData {
+  money: number;
+  name: string;
+  homeLocation: string;
+  unitStatsMap: UnitStatsMap;
+  armies: ArmyData[];
+  defeated: boolean;
 }
 
 export interface PlayerJSON {

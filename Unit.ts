@@ -12,15 +12,12 @@ export type UnitStatsMap = Record<string, UnitStats>;
 export type UnitType = keyof UnitStatsMap;
 
 class Unit {
-  // Readonly
-  public attack: number;
-  public defend: number;
-  public health: number;
-  public range: number;
-  public speed: number;
-  public cost: number;
-
-  // State
+  public readonly attack: number;
+  public readonly defend: number;
+  public readonly health: number;
+  public readonly range: number;
+  public readonly speed: number;
+  public readonly cost: number;
   public currentHealth: number;
   public remainingMoves: number;
   public canAttack: boolean;

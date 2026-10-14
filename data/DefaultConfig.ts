@@ -4,7 +4,7 @@ import DefaultPlayers from "./DefaultPlayers.ts";
 import DefaultUnitStatsMap from "./DefaultUnitStatsMap.ts";
 import type {GameConfig} from "../Config.ts";
 
-const Config: GameConfig = {
+const DefaultConfig: GameConfig = {
   unitStatsMap: DefaultUnitStatsMap,
   gameMap: DefaultGameMap,
   maxTurns: 100,
@@ -15,4 +15,4 @@ const Config: GameConfig = {
   neutralGarrison: DefaultNeutralGarrison,
 };
 
-export default Config;
+export default DefaultConfig;

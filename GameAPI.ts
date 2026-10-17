@@ -14,7 +14,10 @@ const Exit: ProxyHandler<GameAPI> = {
   get(target, key) {
     const member = Reflect.get(target, key);
     if (typeof member !== "function") return undefined;
-    return (...args: unknown[]) => structuredClone(member.apply(target, args));
+    return (...args: unknown[]) => {
+      const result: unknown = member.apply(target, args);
+      return result instanceof GameAPI ? result : structuredClone(result);
+    };
   },
 };
 
@@ -36,6 +39,10 @@ class GameAPI {
 
   toJSON(): GameSave {
     return this.game.toJSON();
+  }
+
+  fork(): GameAPI {
+    return GameAPI.fromJSON(this.game.toJSON());
   }
 
   // Queries

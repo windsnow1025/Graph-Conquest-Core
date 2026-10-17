@@ -103,9 +103,14 @@ class GameAPI {
     return this.game.hasAttackTargets(army);
   }
 
+  hasBattle(): boolean {
+    return this.game.currentBattle !== null;
+  }
+
   canAct(armyId: ArmyId): boolean {
-    const battle = this.findBattle();
-    const army = this.findParticipant(armyId, battle);
+    const army = this.findArmy(armyId);
+    const battle = this.game.currentBattle;
+    if (!battle) return false;
     return battle.canAct(army);
   }
 

@@ -26,12 +26,11 @@ class Graph implements GraphData {
     return true;
   }
 
-  getNodeData(node: string): NodeData | undefined {
-    return this.nodes.get(node)?.data;
+  getNodeData(node: string): NodeData {
+    return this.nodes.get(node)!.data;
   }
 
-  getDistance(node1: string, node2: string, blockedNodes?: Set<string>): number | undefined {
-    if (!this.nodes.has(node1) || !this.nodes.has(node2)) return undefined;
+  getDistance(node1: string, node2: string, blockedNodes?: Set<string>): number {
     if (node1 === node2) return 0;
     const visited = new Set<string>();
     const queue: [string, number][] = [[node1, 0]];

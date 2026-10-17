@@ -36,7 +36,7 @@ class Army implements ArmyData {
     if (newLocation === this.location || blockedLocations.has(newLocation)) {
       return [];
     }
-    const distance = graph.getDistance(this.location, newLocation, blockedLocations)!;
+    const distance = graph.getDistance(this.location, newLocation, blockedLocations);
     return this.units.filter(unit => unit.remainingMoves >= distance);
   }
 

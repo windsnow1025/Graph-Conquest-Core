@@ -93,7 +93,7 @@ class GameSystem implements GameData {
     let income = 0;
     for (const [node, owner] of this.nodeOwnership) {
       if (owner === this.currentPlayer) {
-        income += this.gameMap.getNodeData(node)!.income;
+        income += this.gameMap.getNodeData(node).income;
       }
     }
     return income;
@@ -102,7 +102,7 @@ class GameSystem implements GameData {
   get recruitLocations(): string[] {
     const locations: string[] = [];
     for (const [node, owner] of this.nodeOwnership) {
-      if (owner === this.currentPlayer && this.gameMap.getNodeData(node)!.canRecruit) {
+      if (owner === this.currentPlayer && this.gameMap.getNodeData(node).canRecruit) {
         locations.push(node);
       }
     }
@@ -133,7 +133,7 @@ class GameSystem implements GameData {
   recruitPlayerArmy(unitType: UnitType, location: string, count: number): Army | null {
     if (this.gameOver || this.currentPlayer.defeated) return null;
     if (this.currentBattle) return null;
-    if (!this.gameMap.getNodeData(location)!.canRecruit) return null;
+    if (!this.gameMap.getNodeData(location).canRecruit) return null;
     if (this.nodeOwnership.get(location) !== this.currentPlayer) return null;
 
     return this.currentPlayer.buyUnitsToLocation(unitType, location, count);
@@ -160,7 +160,7 @@ class GameSystem implements GameData {
 
   hasAttackTargets(army: Army): boolean {
     for (const enemyLocation of this.enemyLocations) {
-      const distance = this.gameMap.getDistance(army.location, enemyLocation)!;
+      const distance = this.gameMap.getDistance(army.location, enemyLocation);
       if (army.unitStats.range >= distance) return true;
     }
     return false;
@@ -169,7 +169,7 @@ class GameSystem implements GameData {
   getArmiesInRange(targetLocation: string): Army[] {
     return this.currentPlayer.armies.filter((army) => {
       if (army.attackCandidates.length === 0) return false;
-      const distance = this.gameMap.getDistance(army.location, targetLocation)!;
+      const distance = this.gameMap.getDistance(army.location, targetLocation);
       return army.unitStats.range >= distance;
     });
   }
@@ -278,7 +278,7 @@ class GameSystem implements GameData {
 
       let ownsAnyRecruitNode = false;
       for (const [node, owner] of this.nodeOwnership) {
-        if (owner === player && this.gameMap.getNodeData(node)!.canRecruit) {
+        if (owner === player && this.gameMap.getNodeData(node).canRecruit) {
           ownsAnyRecruitNode = true;
           break;
         }

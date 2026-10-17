@@ -114,7 +114,7 @@ class Battle implements BattleData {
       const distance = this.graph.getDistance(
         army.location,
         this.targetLocation,
-      )!;
+      );
       if (army.unitStats.range >= distance) {
         return this.defenderArmies;
       }
@@ -126,7 +126,7 @@ class Battle implements BattleData {
       const distance = this.graph.getDistance(
         this.targetLocation,
         attackerArmy.location,
-      )!;
+      );
       return army.unitStats.range >= distance;
     });
   }

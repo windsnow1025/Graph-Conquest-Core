@@ -42,7 +42,7 @@ class Player implements PlayerData {
     const candidates = new Set(army.getMoveCandidates(newLocation, graph, enemyLocations));
     if (!units.every(unit => candidates.has(unit))) return false;
 
-    const distance = graph.getDistance(army.location, newLocation, enemyLocations)!;
+    const distance = graph.getDistance(army.location, newLocation, enemyLocations);
     const moving = new Set(units);
     for (const unit of moving) {
       unit.remainingMoves -= distance;

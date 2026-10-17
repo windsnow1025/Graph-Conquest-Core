@@ -30,10 +30,6 @@ class Graph implements GraphData {
     return this.nodes.get(node)?.data;
   }
 
-  getNeighborCount(node: string): number | undefined {
-    return this.nodes.get(node)?.connections.size;
-  }
-
   getDistance(node1: string, node2: string, blockedNodes?: Set<string>): number | undefined {
     if (!this.nodes.has(node1) || !this.nodes.has(node2)) return undefined;
     if (node1 === node2) return 0;

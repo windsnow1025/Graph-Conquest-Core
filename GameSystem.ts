@@ -174,7 +174,7 @@ class GameSystem implements GameData {
     });
   }
 
-  startBattle(targetLocation: string, selections: Map<Army, Unit[]>): Battle | null {
+  startBattle(units: Unit[], targetLocation: string): Battle | null {
     if (this.gameOver || this.currentPlayer.defeated) return null;
     if (this.currentBattle) return null;
 
@@ -185,20 +185,19 @@ class GameSystem implements GameData {
     );
     if (!defenderPlayer) return null;
 
-    // Validate the selections
-    if (selections.size === 0) return null;
+    // Validate the units
+    if (units.length === 0) return null;
     const armiesInRange = this.getArmiesInRange(targetLocation);
-    for (const [army, units] of selections) {
-      if (!armiesInRange.includes(army) || units.length === 0) return null;
-      const candidates = new Set(army.attackCandidates);
-      if (!units.every((unit) => candidates.has(unit))) return null;
+    const attackerArmies: Army[] = [];
+    for (const unit of units) {
+      const army = this.currentPlayer.getArmyOf(unit);
+      if (!army || !armiesInRange.includes(army) || !unit.canAttack) return null;
+      if (!attackerArmies.includes(army)) attackerArmies.push(army);
     }
 
-    for (const units of selections.values()) {
-      for (const unit of units) {
-        unit.canAttack = false;
-        unit.inBattle = true;
-      }
+    for (const unit of units) {
+      unit.canAttack = false;
+      unit.inBattle = true;
     }
     for (const army of defenderPlayer.armies) {
       if (army.location !== targetLocation) continue;
@@ -211,7 +210,7 @@ class GameSystem implements GameData {
       targetLocation,
       this.currentPlayer,
       defenderPlayer,
-      [...selections.keys()],
+      attackerArmies,
       this.gameMap,
       this.maxArmyAttacks,
     );

@@ -89,16 +89,6 @@ class GameSystem implements GameData {
     return this.winner !== null || this.isDraw;
   }
 
-  get nodeIncome(): number {
-    let income = 0;
-    for (const [node, owner] of this.nodeOwnership) {
-      if (owner === this.currentPlayer) {
-        income += this.gameMap.getNodeData(node).income;
-      }
-    }
-    return income;
-  }
-
   get recruitLocations(): string[] {
     const locations: string[] = [];
     for (const [node, owner] of this.nodeOwnership) {
@@ -235,6 +225,16 @@ class GameSystem implements GameData {
     return retreated;
   }
 
+  getNodeIncome(player: Player): number {
+    let income = 0;
+    for (const [node, owner] of this.nodeOwnership) {
+      if (owner === player) {
+        income += this.gameMap.getNodeData(node).income;
+      }
+    }
+    return income;
+  }
+
   getUpkeep(player: Player): number {
     let total = 0;
     for (const army of player.armies) {
@@ -248,7 +248,7 @@ class GameSystem implements GameData {
     this.currentPlayer.money = Math.floor(this.currentPlayer.money * (1 + this.interestRate));
 
     // Income from owned nodes
-    this.currentPlayer.money += this.nodeIncome;
+    this.currentPlayer.money += this.getNodeIncome(this.currentPlayer);
 
     // Upkeep
     this.currentPlayer.money -= this.getUpkeep(this.currentPlayer);

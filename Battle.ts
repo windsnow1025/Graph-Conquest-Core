@@ -109,6 +109,7 @@ class Battle implements BattleData {
   }
 
   getTargetsInRange(army: Army): Army[] {
+    // Attacker
     if (this.attackerArmies.includes(army)) {
       const distance = this.graph.getDistance(
         army.location,
@@ -118,17 +119,16 @@ class Battle implements BattleData {
         return this.defenderArmies;
       }
       return [];
-    } else if (this.defenderArmies.includes(army)) {
-      return this.attackerArmies.filter((attackerArmy) => {
-        const distance = this.graph.getDistance(
-          this.targetLocation,
-          attackerArmy.location,
-        )!;
-        return army.unitStats.range >= distance;
-      });
-    } else {
-      return [];
     }
+
+    // Defender
+    return this.attackerArmies.filter((attackerArmy) => {
+      const distance = this.graph.getDistance(
+        this.targetLocation,
+        attackerArmy.location,
+      )!;
+      return army.unitStats.range >= distance;
+    });
   }
 
   getUnitsNeeded(attackerArmy: Army, targetArmy: Army): number {

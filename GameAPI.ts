@@ -80,6 +80,21 @@ class GameAPI {
     return army.getMoveCandidates(destination, this.game.gameMap, this.game.enemyLocations);
   }
 
+  getAttackableLocations(): Set<string> {
+    return this.game.attackableLocations;
+  }
+
+  getArmiesInRange(target: string): ArmyId[] {
+    this.checkLocation(target);
+    return this.game.getArmiesInRange(target).map(army => this.armyIdOf(army, this.game.currentPlayer));
+  }
+
+  hasAttackTargets(armyId: ArmyId): boolean {
+    this.checkCurrentOwner(armyId);
+    const army = this.findArmy(armyId);
+    return this.game.hasAttackTargets(army);
+  }
+
   getUpkeep(owner: string): number {
     return this.game.getUpkeep(this.findPlayer(owner));
   }
@@ -108,6 +123,13 @@ class GameAPI {
     const army = this.findArmy(armyId);
     const units = this.selectUnits(army, selections);
     return this.game.disbandPlayerUnits(units);
+  }
+
+  startBattle(attackers: ArmySelection[], target: string): boolean {
+    this.checkAttackers(attackers);
+    this.checkLocation(target);
+    const units = attackers.flatMap(attacker => this.selectUnits(this.findArmy(attacker.army), attacker.selections));
+    return this.game.startBattle(units, target) !== null;
   }
 
   endTurn(): boolean {
@@ -142,6 +164,17 @@ class GameAPI {
     }
   }
 
+  private checkAttackers(attackers: ArmySelection[]): void {
+    const armies = new Set<string>();
+    for (const {army, selections} of attackers) {
+      this.checkCurrentOwner(army);
+      this.checkSelections(selections);
+      const key = `${army.location}|${army.unitType}`;
+      if (armies.has(key)) throw new InputError(`an army is listed twice: ${army.unitType} at ${army.location}`);
+      armies.add(key);
+    }
+  }
+
   // Resolution
 
   private findArmy(id: ArmyId): Army {
@@ -167,6 +200,12 @@ class GameAPI {
     }
     return units;
   }
+
+  // Identification
+
+  private armyIdOf(army: Army, owner: Player): ArmyId {
+    return {owner: owner.name, location: army.location, unitType: army.unitType};
+  }
 }
 
 export interface ArmyId {
@@ -180,6 +219,11 @@ export interface UnitSelection {
   remainingMoves: number;
   canAttack: boolean;
   count: number;
+}
+
+export interface ArmySelection {
+  army: ArmyId;
+  selections: UnitSelection[];
 }
 
 export default GameAPI;

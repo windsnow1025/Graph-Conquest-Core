@@ -28,6 +28,10 @@ class Player implements PlayerData {
     return this.armies.find(army => army.location === location && army.unitType === unitType);
   }
 
+  public getArmyOf(unit: Unit): Army | undefined {
+    return this.armies.find(army => army.units.includes(unit));
+  }
+
   public buyUnitsToLocation(unitType: UnitType, location: string, count: number): Army | null {
     if (!this.canBuy(unitType, count)) return null;
 
@@ -37,8 +41,10 @@ class Player implements PlayerData {
     return army;
   }
 
-  public moveUnits(army: Army, newLocation: string, units: Unit[], graph: Graph, enemyLocations: Set<string>): boolean {
-    if (!this.armies.includes(army) || units.length === 0) return false;
+  public moveUnits(units: Unit[], newLocation: string, graph: Graph, enemyLocations: Set<string>): boolean {
+    if (units.length === 0) return false;
+    const army = this.getArmyOf(units[0]);
+    if (!army) return false;
     const candidates = new Set(army.getMoveCandidates(newLocation, graph, enemyLocations));
     if (!units.every(unit => candidates.has(unit))) return false;
 
@@ -53,8 +59,10 @@ class Player implements PlayerData {
     return true;
   }
 
-  public disbandUnits(army: Army, units: Unit[]): boolean {
-    if (!this.armies.includes(army) || units.length === 0) return false;
+  public disbandUnits(units: Unit[]): boolean {
+    if (units.length === 0) return false;
+    const army = this.getArmyOf(units[0]);
+    if (!army) return false;
     if (!units.every(unit => army.units.includes(unit))) return false;
 
     const disbanding = new Set(units);

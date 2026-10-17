@@ -139,11 +139,11 @@ class GameSystem implements GameData {
     return this.currentPlayer.buyUnitsToLocation(unitType, location, count);
   }
 
-  movePlayerUnits(army: Army, newLocation: string, units: Unit[]): boolean {
+  movePlayerUnits(units: Unit[], newLocation: string): boolean {
     if (this.gameOver || this.currentPlayer.defeated) return false;
     if (this.currentBattle) return false;
 
-    const result = this.currentPlayer.moveUnits(army, newLocation, units, this.gameMap, this.enemyLocations);
+    const result = this.currentPlayer.moveUnits(units, newLocation, this.gameMap, this.enemyLocations);
     if (result) {
       this.nodeOwnership.set(newLocation, this.currentPlayer);
       this.checkDefeat();
@@ -151,11 +151,11 @@ class GameSystem implements GameData {
     return result;
   }
 
-  disbandPlayerUnits(army: Army, units: Unit[]): boolean {
+  disbandPlayerUnits(units: Unit[]): boolean {
     if (this.gameOver || this.currentPlayer.defeated) return false;
     if (this.currentBattle) return false;
 
-    return this.currentPlayer.disbandUnits(army, units);
+    return this.currentPlayer.disbandUnits(units);
   }
 
   hasAttackTargets(army: Army): boolean {

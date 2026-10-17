@@ -99,7 +99,7 @@ class GameAPI {
     this.checkSelections(selections);
     const army = this.findArmy(armyId);
     const units = this.selectUnits(army, selections);
-    return this.game.movePlayerUnits(army, destination, units);
+    return this.game.movePlayerUnits(units, destination);
   }
 
   disbandUnits(armyId: ArmyId, selections: UnitSelection[]): boolean {
@@ -107,7 +107,7 @@ class GameAPI {
     this.checkSelections(selections);
     const army = this.findArmy(armyId);
     const units = this.selectUnits(army, selections);
-    return this.game.disbandPlayerUnits(army, units);
+    return this.game.disbandPlayerUnits(units);
   }
 
   endTurn(): boolean {

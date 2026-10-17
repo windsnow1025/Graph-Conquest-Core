@@ -134,6 +134,14 @@ class GameAPI {
     return battle.getRemainingAttacks(army);
   }
 
+  getMoney(player: string): number {
+    return this.findPlayer(player).money;
+  }
+
+  getNodeIncome(player: string): number {
+    return this.game.getNodeIncome(this.findPlayer(player));
+  }
+
   getUpkeep(player: string): number {
     return this.game.getUpkeep(this.findPlayer(player));
   }

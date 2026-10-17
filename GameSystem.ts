@@ -222,7 +222,7 @@ class GameSystem implements GameData {
     if (!battle) return false;
 
     const allocated = battle.allocateAttack(army, allocations);
-    if (battle.result !== BattleResult.Ongoing) this.resolveBattle();
+    if (battle.result !== BattleResult.Ongoing) this.resolveBattle(battle);
     return allocated;
   }
 
@@ -231,26 +231,8 @@ class GameSystem implements GameData {
     if (!battle) return false;
 
     const retreated = battle.retreat();
-    if (battle.result !== BattleResult.Ongoing) this.resolveBattle();
+    if (battle.result !== BattleResult.Ongoing) this.resolveBattle(battle);
     return retreated;
-  }
-
-  resolveBattle(): boolean {
-    if (!this.currentBattle) return false;
-    if (this.currentBattle.result === BattleResult.Ongoing) return false;
-
-    const battle = this.currentBattle;
-    for (const player of [battle.attackerPlayer, battle.defenderPlayer]) {
-      for (const army of player.armies) {
-        for (const unit of army.battleUnits) {
-          unit.inBattle = false;
-        }
-      }
-      player.removeEmptyArmies();
-    }
-    this.currentBattle = null;
-
-    return true;
   }
 
   getUpkeep(player: Player): number {
@@ -304,6 +286,18 @@ class GameSystem implements GameData {
         player.defeated = true;
       }
     }
+  }
+
+  private resolveBattle(battle: Battle) {
+    for (const player of [battle.attackerPlayer, battle.defenderPlayer]) {
+      for (const army of player.armies) {
+        for (const unit of army.battleUnits) {
+          unit.inBattle = false;
+        }
+      }
+      player.removeEmptyArmies();
+    }
+    this.currentBattle = null;
   }
 
   toJSON(): GameSave {

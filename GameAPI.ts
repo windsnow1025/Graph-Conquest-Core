@@ -134,8 +134,8 @@ class GameAPI {
     return battle.getRemainingAttacks(army);
   }
 
-  getUpkeep(owner: string): number {
-    return this.game.getUpkeep(this.findPlayer(owner));
+  getUpkeep(player: string): number {
+    return this.game.getUpkeep(this.findPlayer(player));
   }
 
   // Commands

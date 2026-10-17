@@ -93,10 +93,10 @@ class GameAPI {
     return this.game.recruitPlayerArmy(unitType, location, count) !== null;
   }
 
-  moveUnits(armyId: ArmyId, destination: string, selections: UnitSelection[]): boolean {
+  moveUnits(armyId: ArmyId, selections: UnitSelection[], destination: string): boolean {
     this.checkCurrentOwner(armyId);
-    this.checkLocation(destination);
     this.checkSelections(selections);
+    this.checkLocation(destination);
     const army = this.findArmy(armyId);
     const units = this.selectUnits(army, selections);
     return this.game.movePlayerUnits(units, destination);

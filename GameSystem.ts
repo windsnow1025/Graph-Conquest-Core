@@ -217,6 +217,24 @@ class GameSystem implements GameData {
     return this.currentBattle;
   }
 
+  allocateAttack(army: Army, allocations: Map<Army, number>): boolean {
+    const battle = this.currentBattle;
+    if (!battle) return false;
+
+    const allocated = battle.allocateAttack(army, allocations);
+    if (battle.result !== BattleResult.Ongoing) this.resolveBattle();
+    return allocated;
+  }
+
+  retreat(): boolean {
+    const battle = this.currentBattle;
+    if (!battle) return false;
+
+    const retreated = battle.retreat();
+    if (battle.result !== BattleResult.Ongoing) this.resolveBattle();
+    return retreated;
+  }
+
   resolveBattle(): boolean {
     if (!this.currentBattle) return false;
     if (this.currentBattle.result === BattleResult.Ongoing) return false;

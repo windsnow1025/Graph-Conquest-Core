@@ -1,6 +1,7 @@
 import GameSystem, {type GameData, type GameSave} from "./GameSystem";
 import type Player from "./Player";
 import type Army from "./Army";
+import type Battle from "./Battle";
 import type Unit from "./Unit";
 import type {UnitData, UnitType} from "./Unit";
 import type {GameConfig} from "./Config.ts";
@@ -95,6 +96,32 @@ class GameAPI {
     return this.game.hasAttackTargets(army);
   }
 
+  canAct(armyId: ArmyId): boolean {
+    const battle = this.findBattle();
+    const army = this.findParticipant(armyId, battle);
+    return battle.canAct(army);
+  }
+
+  getTargetsInRange(armyId: ArmyId): ArmyId[] {
+    const battle = this.findBattle();
+    const army = this.findParticipant(armyId, battle);
+    const owner = battle.attackerArmies.includes(army) ? battle.defenderPlayer : battle.attackerPlayer;
+    return battle.getTargetsInRange(army).map(target => this.armyIdOf(target, owner));
+  }
+
+  getUnitsNeeded(armyId: ArmyId, targetId: ArmyId): number {
+    const battle = this.findBattle();
+    const army = this.findParticipant(armyId, battle);
+    const target = this.findParticipant(targetId, battle);
+    return battle.getUnitsNeeded(army, target);
+  }
+
+  getRemainingAttacks(armyId: ArmyId): number {
+    const battle = this.findBattle();
+    const army = this.findParticipant(armyId, battle);
+    return battle.getRemainingAttacks(army);
+  }
+
   getUpkeep(owner: string): number {
     return this.game.getUpkeep(this.findPlayer(owner));
   }
@@ -130,6 +157,18 @@ class GameAPI {
     this.checkLocation(target);
     const units = attackers.flatMap(attacker => this.selectUnits(this.findArmy(attacker.army), attacker.selections));
     return this.game.startBattle(units, target) !== null;
+  }
+
+  allocateAttack(armyId: ArmyId, allocations: AttackAllocation[]): boolean {
+    this.checkAllocations(allocations);
+    const battle = this.findBattle();
+    const army = this.findParticipant(armyId, battle);
+    const counts = new Map(allocations.map(allocation => [this.findParticipant(allocation.target, battle), allocation.count]));
+    return this.game.allocateAttack(army, counts);
+  }
+
+  retreat(): boolean {
+    return this.game.retreat();
   }
 
   endTurn(): boolean {
@@ -175,11 +214,33 @@ class GameAPI {
     }
   }
 
+  private checkAllocations(allocations: AttackAllocation[]): void {
+    const targets = new Set<string>();
+    for (const {target, count} of allocations) {
+      this.checkCount(count);
+      const key = `${target.owner}|${target.location}|${target.unitType}`;
+      if (targets.has(key)) throw new InputError(`a target is listed twice: ${target.unitType} of ${target.owner} at ${target.location}`);
+      targets.add(key);
+    }
+  }
+
   // Resolution
 
   private findArmy(id: ArmyId): Army {
     const army = this.findPlayer(id.owner).getArmy(id.location, id.unitType);
     if (!army) throw new InputError(`no ${id.unitType} army of ${id.owner} at ${id.location}`);
+    return army;
+  }
+
+  private findBattle(): Battle {
+    const battle = this.game.currentBattle;
+    if (!battle) throw new InputError("no battle in progress");
+    return battle;
+  }
+
+  private findParticipant(armyId: ArmyId, battle: Battle): Army {
+    const army = this.findArmy(armyId);
+    if (!battle.allArmies.includes(army)) throw new InputError(`not in the battle: ${armyId.unitType} of ${armyId.owner} at ${armyId.location}`);
     return army;
   }
 
@@ -224,6 +285,11 @@ export interface UnitSelection {
 export interface ArmySelection {
   army: ArmyId;
   selections: UnitSelection[];
+}
+
+export interface AttackAllocation {
+  target: ArmyId;
+  count: number;
 }
 
 export default GameAPI;

@@ -193,7 +193,7 @@ class GameAPI {
   startBattle(attackers: ArmySelection[], target: string): boolean {
     this.checkAttackers(attackers);
     this.checkLocation(target);
-    const units = attackers.flatMap(attacker => this.selectUnits(this.findArmy(attacker.army), attacker.selections));
+    const units = attackers.flatMap(attacker => this.selectUnits(this.findArmy(attacker.armyId), attacker.selections));
     return this.game.startBattle(units, target) !== null;
   }
 
@@ -201,7 +201,7 @@ class GameAPI {
     this.checkAllocations(allocations);
     const battle = this.findBattle();
     const army = this.findParticipant(armyId, battle);
-    const counts = new Map(allocations.map(allocation => [this.findParticipant(allocation.target, battle), allocation.count]));
+    const counts = new Map(allocations.map(allocation => [this.findParticipant(allocation.targetId, battle), allocation.count]));
     return this.game.allocateAttack(army, counts);
   }
 
@@ -243,21 +243,21 @@ class GameAPI {
 
   private checkAttackers(attackers: ArmySelection[]): void {
     const armies = new Set<string>();
-    for (const {army, selections} of attackers) {
-      this.checkCurrentOwner(army);
+    for (const {armyId, selections} of attackers) {
+      this.checkCurrentOwner(armyId);
       this.checkSelections(selections);
-      const key = `${army.location}|${army.unitType}`;
-      if (armies.has(key)) throw new InputError(`an army is listed twice: ${army.unitType} at ${army.location}`);
+      const key = `${armyId.location}|${armyId.unitType}`;
+      if (armies.has(key)) throw new InputError(`an army is listed twice: ${armyId.unitType} at ${armyId.location}`);
       armies.add(key);
     }
   }
 
   private checkAllocations(allocations: AttackAllocation[]): void {
     const targets = new Set<string>();
-    for (const {target, count} of allocations) {
+    for (const {targetId, count} of allocations) {
       this.checkCount(count);
-      const key = `${target.owner}|${target.location}|${target.unitType}`;
-      if (targets.has(key)) throw new InputError(`a target is listed twice: ${target.unitType} of ${target.owner} at ${target.location}`);
+      const key = `${targetId.owner}|${targetId.location}|${targetId.unitType}`;
+      if (targets.has(key)) throw new InputError(`a target is listed twice: ${targetId.unitType} of ${targetId.owner} at ${targetId.location}`);
       targets.add(key);
     }
   }
@@ -321,12 +321,12 @@ export interface UnitSelection {
 }
 
 export interface ArmySelection {
-  army: ArmyId;
+  armyId: ArmyId;
   selections: UnitSelection[];
 }
 
 export interface AttackAllocation {
-  target: ArmyId;
+  targetId: ArmyId;
   count: number;
 }
 

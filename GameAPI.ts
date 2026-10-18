@@ -6,6 +6,24 @@ import type Unit from "./Unit";
 import type {UnitData, UnitType} from "./Unit";
 import type {GameConfig} from "./Config.ts";
 
+// Data types
+export type {GameData} from "./GameSystem";
+export type {GraphData, NodeData} from "./Graph";
+export type {PlayerData} from "./Player";
+export type {ArmyData} from "./Army";
+export type {UnitData, UnitStats, UnitStatsMap, UnitType} from "./Unit";
+export type {BattleData} from "./Battle";
+export {BattlePhase, BattleResult} from "./Battle";
+
+// Config and save types
+export type {GameConfig, PlayerConfig, NeutralGarrison} from "./Config.ts";
+export type {GameSave} from "./GameSystem";
+export type {GraphJSON, GraphNodeJSON} from "./Graph";
+export type {PlayerJSON} from "./Player";
+export type {ArmyJSON} from "./Army";
+export type {UnitJSON} from "./Unit";
+export type {BattleSave} from "./Battle";
+
 export class InputError extends Error {
   name = "InputError";
 }

@@ -264,9 +264,9 @@ class GameAPI {
 
   // Resolution
 
-  private findArmy(id: ArmyId): Army {
-    const army = this.findPlayer(id.owner).getArmy(id.location, id.unitType);
-    if (!army) throw new InputError(`no ${id.unitType} army of ${id.owner} at ${id.location}`);
+  private findArmy(armyId: ArmyId): Army {
+    const army = this.findPlayer(armyId.owner).getArmy(armyId.location, armyId.unitType);
+    if (!army) throw new InputError(`no ${armyId.unitType} army of ${armyId.owner} at ${armyId.location}`);
     return army;
   }
 

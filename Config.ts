@@ -1,5 +1,5 @@
-import {type UnitStats, type UnitStatsMap, type UnitType} from "./Unit.ts";
-import type {GraphJSON} from "./Graph.ts";
+import {type UnitStats, type UnitStatsMap, type UnitType} from "./Unit";
+import type {GraphJSON} from "./Graph";
 
 export interface NeutralGarrison {
   unitType: UnitType;

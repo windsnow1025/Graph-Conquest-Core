@@ -4,8 +4,8 @@ import Battle, {BattleResult, type BattleData, type BattleSave} from "./Battle";
 import type Unit from "./Unit";
 import type {UnitStatsMap, UnitType} from "./Unit";
 import {createUnits} from "./Unit";
-import Graph, {type GraphData, type GraphJSON} from "./Graph.ts";
-import type {GameConfig} from "./Config.ts";
+import Graph, {type GraphData, type GraphJSON} from "./Graph";
+import type {GameConfig} from "./Config";
 
 class GameSystem implements GameData {
   // Config

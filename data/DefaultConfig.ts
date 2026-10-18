@@ -1,8 +1,8 @@
-import DefaultGameMap from "./DefaultGameMap.ts";
-import DefaultNeutralGarrison from "./DefaultNeutralGarrison.ts";
-import DefaultPlayers from "./DefaultPlayers.ts";
-import DefaultUnitStatsMap from "./DefaultUnitStatsMap.ts";
-import type {GameConfig} from "../Config.ts";
+import DefaultGameMap from "./DefaultGameMap";
+import DefaultNeutralGarrison from "./DefaultNeutralGarrison";
+import DefaultPlayers from "./DefaultPlayers";
+import DefaultUnitStatsMap from "./DefaultUnitStatsMap";
+import type {GameConfig} from "../Config";
 
 const DefaultConfig: GameConfig = {
   unitStatsMap: DefaultUnitStatsMap,

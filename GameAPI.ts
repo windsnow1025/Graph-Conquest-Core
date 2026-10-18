@@ -4,7 +4,7 @@ import type Army from "./Army";
 import type Battle from "./Battle";
 import type Unit from "./Unit";
 import type {UnitData, UnitType} from "./Unit";
-import type {GameConfig} from "./Config.ts";
+import type {GameConfig} from "./Config";
 
 // Data types
 export type {GameData} from "./GameSystem";
@@ -16,7 +16,7 @@ export type {BattleData} from "./Battle";
 export {BattlePhase, BattleResult} from "./Battle";
 
 // Config and save types
-export type {GameConfig, PlayerConfig, NeutralGarrison} from "./Config.ts";
+export type {GameConfig, PlayerConfig, NeutralGarrison} from "./Config";
 export type {GameSave} from "./GameSystem";
 export type {GraphJSON, GraphNodeJSON} from "./Graph";
 export type {PlayerJSON} from "./Player";

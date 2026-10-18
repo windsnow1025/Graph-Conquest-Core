@@ -1,4 +1,4 @@
-import DefaultUnitStatsMap, {type DefaultUnitName} from "./DefaultUnitStatsMap.ts";
+import DefaultUnitStatsMap, {type DefaultUnitName} from "./DefaultUnitStatsMap";
 
 const unitType: DefaultUnitName = "Infantry";
 const unitStatsMap = DefaultUnitStatsMap;

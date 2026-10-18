@@ -1,4 +1,4 @@
-import type {PlayerConfig} from "../Config.ts";
+import type {PlayerConfig} from "../Config";
 
 const DefaultPlayers: PlayerConfig[] = [
   {money: 100, name: "Blue", homeLocation: "Blue Home"},
